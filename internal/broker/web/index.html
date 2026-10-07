@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>StreamForge · Monitor</title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+ <header><a class="brand" href="/">▥ <span>StreamForge</span></a><span class="tag">EVENT STREAM MONITOR</span><span id="connection" class="connection">Connecting…</span></header>
+ <main>
+  <div class="intro"><div><p class="eyebrow">SYSTEM OVERVIEW</p><h1>Your streams, at a glance.</h1><p class="muted">Partitioned logs. Persistent offsets. A small system you can inspect.</p></div><div class="update"><button id="refresh">Refresh now ↻</button><p id="updated">Polling every 3 seconds</p></div></div>
+  <div id="notice" role="status" hidden></div>
+  <section class="stats" aria-label="Stream statistics">
+   <article><p>STORED MESSAGES</p><strong id="messages">—</strong><span>Across available partitions</span></article>
+   <article><p>MESSAGE RATE</p><strong id="rate">—</strong><span>Publishes / second · since startup</span></article>
+   <article><p>ACTIVE TOPICS</p><strong id="topics">—</strong><span>Each with an independent log</span></article>
+   <article><p>CONSUMER LAG</p><strong id="lag">—</strong><span>Unread messages across groups</span></article>
+  </section>
+  <div class="grid"><section class="panel"><div class="panel-heading"><h2>Broker health</h2><span>Heartbeat every 2s</span></div><div id="brokers" class="broker-list"></div></section>
+   <section class="panel"><div class="panel-heading"><h2>Topics & partitions</h2><span id="partition-count"></span></div><div class="scroll"><table><thead><tr><th>Topic</th><th>Partition</th><th>Owner</th><th class="number">Messages</th></tr></thead><tbody id="partitions"></tbody></table></div></section></div>
+  <section class="panel groups"><div class="panel-heading"><h2>Consumer groups</h2><span>15-second member leases</span></div><div class="scroll"><table><thead><tr><th>Group / topic</th><th>Live members</th><th>Committed next offsets</th><th class="number">Lag</th></tr></thead><tbody id="groups"></tbody></table></div></section>
+  <footer><span>StreamForge · Go + HTTP + append-only logs</span><span id="uptime">Broker uptime —</span></footer>
+ </main><script src="/app.js"></script>
+</body></html>
