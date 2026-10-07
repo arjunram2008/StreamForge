@@ -1,0 +1,49 @@
+name: Go checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: go vet ./...
+      - run: go test ./...
+      - run: go build ./cmd/...
+      - name: Race detector
+        if: runner.os == 'Linux'
+        run: go test -race ./...
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: docker compose config --quiet
+      - run: docker compose -f config/docker-compose.cluster.yml config --quiet
+      - run: docker compose up --build --detach
+      - name: Exercise the container
+        run: |
+          curl --fail --retry 15 --retry-connrefused --retry-delay 1 http://127.0.0.1:8080/health
+          go run ./cmd/topic --topic orders --partitions 3
+          go run ./cmd/producer --topic orders --message hello
+          go run ./cmd/consumer --topic orders --group ci --once > first.jsonl
+          test "$(wc -l < first.jsonl)" -eq 1
+          docker compose restart broker
+          curl --fail --retry 15 --retry-connrefused --retry-delay 1 http://127.0.0.1:8080/health
+          go run ./cmd/consumer --topic orders --group ci --once > resumed.jsonl
+          test ! -s resumed.jsonl
+          go run ./cmd/consumer --topic orders --group replay --once > replay.jsonl
+          test "$(wc -l < replay.jsonl)" -eq 1
+      - name: Stop containers
+        if: always()
+        run: docker compose down

@@ -1,0 +1,21 @@
+services:
+  broker-0:
+    build:
+      context: ..
+    command: ["--addr", "0.0.0.0:8080", "--data", "/data", "--id", "0", "--peers", "http://broker-0:8080,http://broker-1:8080"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - broker-0-data:/data
+  broker-1:
+    build:
+      context: ..
+    command: ["--addr", "0.0.0.0:8080", "--data", "/data", "--id", "1", "--peers", "http://broker-0:8080,http://broker-1:8080"]
+    ports:
+      - "127.0.0.1:8081:8080"
+    volumes:
+      - broker-1-data:/data
+
+volumes:
+  broker-0-data:
+  broker-1-data:
